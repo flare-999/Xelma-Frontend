@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { educationApi } from "../lib/api-client";
 import { normalizeApiError } from "../lib/api";
 import type { Guide, Tip } from "../types/education";
@@ -12,6 +12,7 @@ const LearnPage = () => {
     const [tip, setTip] = useState<Tip | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const guidesHeadingRef = useRef<HTMLHeadingElement>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -60,6 +61,14 @@ const LearnPage = () => {
         return () => clearTimeout(timer);
     }, [fetchData]);
 
+    const handleGuideFocus = useCallback((index: number) => {
+        const cards = document.querySelectorAll<HTMLElement>('[data-guide-card="true"]');
+        const target = cards[index];
+        if (target) {
+            target.focus();
+        }
+    }, []);
+
     if (loading) {
         return (
             <div className="xelma-grid-bg min-h-screen relative flex items-center justify-center overflow-hidden">
@@ -104,15 +113,20 @@ const LearnPage = () => {
                         <section aria-labelledby="learn-guides-heading">
                             <div className="flex items-center gap-3 mb-8">
                                 <BookMarked className="text-xelma-teal shrink-0" size={24} aria-hidden />
-                                <h2 id="learn-guides-heading" className="text-2xl font-bold text-white">
+                                <h2 id="learn-guides-heading" ref={guidesHeadingRef} className="text-2xl font-bold text-white">
                                     Expert Guides
                                 </h2>
                             </div>
 
                             {guides.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {guides.map((guide) => (
-                                        <GuideCard key={guide.id} guide={guide} />
+                                    {guides.map((guide, index) => (
+                                        <GuideCard
+                                            key={guide.id}
+                                            guide={guide}
+                                            headingId="learn-guides-heading"
+                                            onFocusRequest={() => handleGuideFocus(index)}
+                                        />
                                     ))}
                                 </div>
                             ) : (
@@ -147,14 +161,14 @@ const LearnPage = () => {
                             </section>
 
                             {/* Additional info box */}
-                            <div className="p-6 rounded-2xl glass-card">
+                            <div className="p-6 rounded-2xl glass-card border border-white/10 backdrop-blur-md bg-white/5">
                                 <h3 className="font-bold mb-2 text-white">Want to contribute?</h3>
                                 <p className="text-sm text-gray-400 mb-4">
                                     Are you an expert in Stellar or prediction markets? Share your knowledge with the community.
                                 </p>
                                 <button
                                     type="button"
-                                    className="btn-ghost w-full py-2.5 px-4 rounded-xl text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xelma-teal focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F1A]"
+                                    className="btn-ghost w-full py-2.5 px-4 rounded-xl text-sm font-bold transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xelma-teal focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F1A]"
                                 >
                                     Apply as Educator
                                 </button>
