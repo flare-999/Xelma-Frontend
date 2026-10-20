@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { socketService, type ConnectionState } from '../lib/socket';
 
 /**
@@ -11,15 +11,13 @@ export function useConnectionStatus() {
   );
 
   useEffect(() => {
-    // Sync with the latest state in case it changed between render and subscription.
-    setConnectionState(socketService.getConnectionState());
     const unsubscribe = socketService.onConnectionChange(setConnectionState);
     return unsubscribe;
   }, []);
 
-  const reconnect = () => {
+  const reconnect = useCallback(() => {
     socketService.forceReconnect();
-  };
+  }, []);
 
   return {
     ...connectionState,
