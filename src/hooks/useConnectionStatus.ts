@@ -11,6 +11,8 @@ export function useConnectionStatus() {
   );
 
   useEffect(() => {
+    // Sync with the latest state in case it changed between render and subscription.
+    setConnectionState(socketService.getConnectionState());
     const unsubscribe = socketService.onConnectionChange(setConnectionState);
     return unsubscribe;
   }, []);
