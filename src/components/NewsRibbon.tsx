@@ -1,4 +1,4 @@
-import { X, Sparkles } from 'lucide-react';
+
 import { useState, useCallback } from 'react';
 import './NewsRibbon.css';
 
